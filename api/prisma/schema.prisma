@@ -1,0 +1,204 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String  @id @default(uuid())
+  firstname    String
+  lastname     String
+  username     String
+  email        String  @unique
+  password     String
+  profilePhoto String? @default("/images/profilePic.jpeg")
+  coverPhoto   String?
+
+  tweets            Tweet[]
+  comments          Comment[]
+  tweetLikes        TweetLike[]
+  commentLikes      CommentLike[]
+  followers         Follow[]       @relation("following")
+  following         Follow[]       @relation("follower")
+  chats             Chat[]
+  messages          Message[]      @relation("messaggesCreated")
+  messagesReaded    Message[]      @relation("messages_readers")
+  notifications     Notification[] @relation("getNotification")
+  sendnotifications Notification[] @relation("sendNotification")
+  ResetToken        ResetToken?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ResetToken {
+  id        String   @id @default(uuid())
+  token     String
+  user      User     @relation(references: [id], fields: [userId])
+  userId    String   @unique
+  expiresAt DateTime
+
+  createdAt DateTime @default(now())
+}
+
+model Tweet {
+  id      String  @id @default(uuid())
+  content String?
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  originalTweet   Tweet?  @relation("retweets", fields: [originalTweetId], references: [id], onDelete: Cascade)
+  originalTweetId String?
+  retweets        Tweet[] @relation("retweets")
+
+  comments     Comment[]
+  likes        TweetLike[]
+  notification Notification?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TweetLike {
+  id String @id @default(uuid())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  tweet   Tweet  @relation(fields: [tweetId], references: [id], onDelete: Cascade)
+  tweetId String
+
+  notification Notification?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tweetId, userId])
+}
+
+model Comment {
+  id      String @id @default(uuid())
+  content String
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  tweet   Tweet  @relation(fields: [tweetId], references: [id], onDelete: Cascade)
+  tweetId String
+
+  notification Notification?
+  likes        CommentLike[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CommentLike {
+  id String @id @default(uuid())
+
+  comment   Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId String
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  notification Notification?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Follow {
+  id String @id @default(uuid())
+
+  follower   User   @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+  followerId String
+
+  following   User   @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
+  followingId String
+
+  Notification Notification?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([followerId, followingId])
+}
+
+model Chat {
+  id      String  @id @default(uuid())
+  name    String?
+  isGroup Boolean @default(false)
+
+  users    User[]
+  messages Message[] @relation("chatMessages")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Message {
+  id      String @id @default(uuid())
+  content String
+
+  user   User   @relation("messaggesCreated", fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  chat   Chat   @relation("chatMessages", fields: [chatId], references: [id], onDelete: Cascade)
+  chatId String
+
+  readBy User[] @relation("messages_readers")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum NotificatinType {
+  FOLLOW
+  TWEETLIKE
+  COMMENT
+  RETWEET
+  COMMENTLIKE
+}
+
+model Notification {
+  id       String          @id @default(uuid())
+  type     NotificatinType
+  opened   Boolean         @default(false)
+  readed   Boolean         @default(false)
+  entityId String
+
+  from   User   @relation("sendNotification", fields: [fromId], references: [id])
+  fromId String
+
+  to   User   @relation("getNotification", fields: [toId], references: [id])
+  toId String
+
+  tweetLike   TweetLike? @relation(fields: [tweetLikeId], references: [id], onDelete: Cascade)
+  tweetLikeId String?    @unique
+
+  commentLike   CommentLike? @relation(fields: [commentLikeId], references: [id], onDelete: Cascade)
+  commentLikeId String?      @unique
+
+  comment   Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId String?  @unique
+
+  retweet   Tweet?  @relation(fields: [retweetId], references: [id], onDelete: Cascade)
+  retweetId String? @unique
+
+  follow   Follow? @relation(fields: [followId], references: [id], onDelete: Cascade)
+  followId String? @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

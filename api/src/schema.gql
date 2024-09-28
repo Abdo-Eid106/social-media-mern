@@ -1,0 +1,288 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type User {
+  id: ID!
+  firstname: String!
+  lastname: String!
+  username: String!
+  email: String!
+  profilePhoto: String
+  coverPhoto: String
+  followers: [User!]!
+  followings: [User!]!
+  tweets: [Tweet!]!
+}
+
+type CommentLike {
+  id: ID!
+  user: User!
+  comment: Comment!
+  createdAt: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Comment {
+  id: ID!
+  content: String!
+  user: User!
+  likes: [CommentLike!]!
+  createdAt: DateTime!
+}
+
+type TweetLike {
+  id: ID!
+  user: User!
+  createdAt: DateTime!
+}
+
+type Tweet {
+  id: ID!
+  content: String
+  user: User!
+  originalTweet: Tweet
+  comments: [Comment!]!
+  likes: [TweetLike!]!
+  createdAt: DateTime!
+  retweets: [Tweet!]!
+}
+
+type Notification {
+  id: ID!
+  type: NotificatinType!
+  opened: Boolean!
+  readed: Boolean!
+  from: User!
+  entityId: ID!
+  createdAt: DateTime!
+}
+
+enum NotificatinType {
+  FOLLOW
+  TWEETLIKE
+  COMMENT
+  RETWEET
+  COMMENTLIKE
+}
+
+type Follow {
+  createdAt: DateTime!
+}
+
+type Message {
+  id: ID!
+  content: String!
+  user: User!
+  readBy: [User!]!
+  createdAt: DateTime!
+}
+
+type Chat {
+  id: ID!
+  name: String
+  isGroup: Boolean!
+  users: [User!]!
+  messages: [Message!]!
+  latestMessage: Message
+  createdAt: DateTime!
+}
+
+type Query {
+  users(filter: GetUsersInput, paginate: PaginationInput, orderBy: OrderUsersInput): [User!]!
+  user(id: ID!): User!
+  me: User!
+  tweets(getTweetsInput: GetTweetsInput, paginate: PaginationInput, orderBy: OrderTweetsInput): [Tweet!]!
+  tweet(id: ID!): Tweet!
+  homeTweets(getTweetsInput: GetTweetsInput, paginate: PaginationInput, orderBy: OrderTweetsInput): [Tweet!]!
+  notifications(getNotificationsInput: GetNotificationsInput, orderBy: OrderNotificationsInput, paginate: PaginationInput): [Notification!]!
+  comments(getCommentsDto: GetCommentsInput!, orderBy: OrderCommentsInput, paginate: PaginationInput): [Comment!]!
+  comment(id: ID!): Comment!
+  chats: [Chat!]!
+  chat(id: ID!): Chat!
+  findLatestChat: Chat
+  getDirectChat(userId: ID!): Chat!
+  unreadedChats: [Chat!]!
+  latestMessage(chatId: ID!): Message
+  unreadedMessagesCount: Int!
+}
+
+input GetUsersInput {
+  username: StringFilter
+  email: StringFilter
+}
+
+input StringFilter {
+  contains: String
+  startsWith: String
+  equals: String
+  in: [String!]
+}
+
+input PaginationInput {
+  skip: Int
+  take: Int
+}
+
+input OrderUsersInput {
+  username: ordeyBy
+  email: ordeyBy
+  createdAt: ordeyBy
+  updatedAt: ordeyBy
+}
+
+enum ordeyBy {
+  ASC
+  DESC
+}
+
+input GetTweetsInput {
+  content: StringFilter
+  userId: ID
+}
+
+input OrderTweetsInput {
+  content: ordeyBy
+  userId: ordeyBy
+  createdAt: ordeyBy
+  updatedAt: ordeyBy
+}
+
+input GetNotificationsInput {
+  id: ID
+  type: NotificationTypeFilter
+  opened: Boolean
+  readed: Boolean
+  fromId: ID
+  toId: ID
+  tweetLikeId: ID
+  commentId: ID
+  retweetId: ID
+  followId: ID
+  messageId: ID
+}
+
+input NotificationTypeFilter {
+  in: [NotificatinType!]!
+}
+
+input OrderNotificationsInput {
+  createdAt: ordeyBy
+  updatedAt: ordeyBy
+}
+
+input GetCommentsInput {
+  content: StringFilter
+  tweetId: ID!
+}
+
+input OrderCommentsInput {
+  content: ordeyBy
+  tweetId: ID
+  createdAt: ordeyBy
+  updatedAt: ordeyBy
+}
+
+type Mutation {
+  signup(signupInput: SignupInput!): User!
+  login(loginInput: LoginInput!): String!
+  forgotPassword(email: String!): String!
+  resetPassword(resetPasswordInput: ResetPasswordInput!): String!
+  createTweet(createTweetInput: CreateTweetInput!): Tweet!
+  updateTweet(updateTweetInput: UpdateTweetInput!): Tweet!
+  removeTweet(id: ID!): Tweet!
+  toggleRetweet(tweetId: ID!): Tweet
+  markAllAsRead: Int!
+  markAsOpened(id: ID!): Notification!
+  createComment(createCommentInput: CreateCommentInput!): Comment!
+  updateComment(id: ID!, updateCommentInput: UpdateCommentInput!): Comment!
+  removeComment(id: ID!): Comment!
+  toggleTweetLike(tweetId: ID!): TweetLike
+  toggleCommentLike(id: ID!): CommentLike
+  toggleFollow(userId: ID!): Follow
+  createChat(createChatInput: CreateChatInput!): Chat!
+  updateChat(updateChatInput: UpdateChatInput!): Chat!
+  createMessage(createMessageInput: CreateMessageInput!): Message!
+  updateMessage(updateMessageInput: UpdateMessageInput!): Message!
+  removeMessage(id: ID!): Message!
+  readMessages(getMessagesInput: GetMessagesInput!): [Message!]!
+  readMessage(id: ID!): Message!
+}
+
+input SignupInput {
+  firstname: String!
+  lastname: String!
+  username: String!
+  email: String!
+  password: String!
+  profilePhoto: String
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+input ResetPasswordInput {
+  password: String!
+  resetToken: String!
+}
+
+input CreateTweetInput {
+  content: String!
+}
+
+input UpdateTweetInput {
+  content: String
+  id: ID!
+}
+
+input CreateCommentInput {
+  tweetId: ID!
+  content: String!
+}
+
+input UpdateCommentInput {
+  tweetId: ID
+  content: String
+}
+
+input CreateChatInput {
+  name: String
+  users: [ID!]!
+}
+
+input UpdateChatInput {
+  id: ID!
+  name: String
+}
+
+input CreateMessageInput {
+  content: String!
+  chatId: ID!
+}
+
+input UpdateMessageInput {
+  content: String
+  chatId: ID
+  id: ID!
+}
+
+input GetMessagesInput {
+  userId: ID
+  chatId: ID!
+  content: StringFilter
+  createdAt: DateFilter
+}
+
+input DateFilter {
+  lt: DateTime
+  lte: DateTime
+  gt: DateTime
+  gte: DateTime
+  equals: DateTime
+}
