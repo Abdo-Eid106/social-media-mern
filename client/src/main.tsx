@@ -10,7 +10,12 @@ createRoot(document.getElementById("root")!).render(
   <>
     <QueryClientProvider client={new QueryClient()}>
       <ApolloProvider client={client}>
-        <ToastContainer autoClose={2000} position="top-center" />
+        <ToastContainer
+          autoClose={1000}
+          position="top-center"
+          closeButton={false}
+          hideProgressBar={true}
+        />
         <App />
       </ApolloProvider>
     </QueryClientProvider>
