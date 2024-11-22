@@ -22,7 +22,6 @@ const Login = () => {
 
   const [login] = useMutation<{ token: string }>(LOGIN, {
     onCompleted: ({ token }) => {
-      toast.success("logged in successfully!");
       localStorage.setItem("token", token);
       navigate("/");
     },
