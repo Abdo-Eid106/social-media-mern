@@ -3,7 +3,7 @@ import { IUser, GET_USER } from "../../user";
 import { GET_USER_TWEETS, ITweet, Tweets } from "../../tweet";
 import { GET_DIRECT_CHAT, IChat } from "../../chat";
 import { useToggleFollow } from "../../follow";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { MdEmail } from "react-icons/md";
 import { PrimaryContext } from "../../primary";
 import { useQuery } from "@apollo/client";
@@ -63,7 +63,11 @@ const Profile = () => {
       <div className="profileHeaderContainer">
         <div className="coverPhotoSection">
           <div className="coverPhotoContainer">
-            {user.coverPhoto ? (
+            {myProfile ? (
+              me.coverPhoto ? (
+                <img src={me.coverPhoto} alt={me.username} />
+              ) : null
+            ) : user.coverPhoto ? (
               <img src={user.coverPhoto} alt={user.username} />
             ) : null}
             {myProfile ? (
@@ -76,7 +80,11 @@ const Profile = () => {
             ) : null}
           </div>
           <div className="userImageContainer">
-            <img src={user.profilePhoto} alt={user.username} />
+            {myProfile ? (
+              <img src={me.profilePhoto} alt={me.username} />
+            ) : (
+              <img src={user.profilePhoto} alt={user.username} />
+            )}
             {myProfile ? (
               <button
                 className="profilePictureButton"
