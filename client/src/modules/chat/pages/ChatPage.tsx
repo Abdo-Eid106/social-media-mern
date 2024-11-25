@@ -61,9 +61,7 @@ const Chat = () => {
     socket.on("typing", handleTyping);
 
     return () => {
-      socket.off("chatpage: message", () => {
-        handleMessage;
-      });
+      socket.off("chatpage: message", handleMessage);
       socket.off("typing", handleTyping);
       socket.emit("leaveChat", { chatId: chat.id });
     };
