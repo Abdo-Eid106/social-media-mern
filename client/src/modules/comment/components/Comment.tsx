@@ -40,10 +40,7 @@ const Comment = ({ comment, tweet }: { comment: IComment; tweet: ITweet }) => {
         </div>
         <div className="postContentContainer">
           <div className="header">
-            <Link
-              className="displayName"
-              to={`/profile/${comment.user.username}`}
-            >
+            <Link className="displayName" to={`/profile/${comment.user.id}`}>
               {comment.user.firstname + " " + comment.user.lastname}
             </Link>
             <span className="username">@ {comment.user.username}</span>
