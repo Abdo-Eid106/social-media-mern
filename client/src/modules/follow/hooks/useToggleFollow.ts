@@ -18,9 +18,9 @@ export const useToggleFollow = (user: IUser | undefined, userId: string) => {
       if (!followData.isFollowing) socket.emit("notification", { userId });
       setMe({
         ...me,
-        followers: followData.isFollowing
-          ? me.followers.filter((follower) => follower.id !== userId)
-          : [me.followers, user],
+        followings: followData.isFollowing
+          ? me.followings.filter((follower) => follower.id !== userId)
+          : [me.followings, user],
       });
       setFollowData((prev) => {
         return {

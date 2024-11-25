@@ -10,6 +10,7 @@ export const useFetchUsers = (search: string = "") => {
     variables: {
       username: search,
     },
+    fetchPolicy: "no-cache",
   });
 
   if (error) toast.error(error.message);
